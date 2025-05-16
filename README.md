@@ -1,4 +1,4 @@
-# 🎪 RFID Event Management System
+# 🎪 Event Management System
 
 A blazing-fast 🏃‍♂️, offline-first 📴, and scalable ⚡ backend for managing attendees, check-ins, wristbands, and more — all powered by **FastAPI + PostgreSQL + RFID**.
 
@@ -33,8 +33,8 @@ A blazing-fast 🏃‍♂️, offline-first 📴, and scalable ⚡ backend for m
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-org/rfid-event-backend.git
-cd rfid-event-backend
+git clone https://github.com/ashvp/Event-Management.git
+cd Event-Management
 ```
 
 ### 2. Install dependencies
@@ -78,12 +78,17 @@ pytest
 ## 📆 API Endpoints
 
 ```http
-POST   /attendees/           → Bulk onboard via CSV
-GET    /attendees/{id}       → Get attendee info
-POST   /check-in/            → Record a check-in
-POST   /assign-rfid/         → Bind RFID tag
-GET    /sync/unsynced        → View unsynced records (offline desks)
-POST   /sync/merge           → Push offline records to central
+POST   /attendees/upload_csv                 → Bulk onboard via CSV
+GET    /attendees/                           → Get all attendee info
+POST   /attendees/                           → On spot registration
+POST   /attendees/{attendee_id}/assign_rfid  → Assign RFID to attendee
+GET    /attendees/rfid_export/               → Downloads RFID
+POST   /check-in/                            → Check in attendee
+POST   /claim/{item_name}                    → Claiming an offered item
+GET    /event_days/                          → Get event days
+POST   /event_days/                          → Add event days
+GET    /dashboard/stats                      → Get basic stats
+GET    /dashboard/                           → Dashboard with advanced search
 ```
 
 📚 Full docs available at `/docs` via Swagger UI.
@@ -105,7 +110,7 @@ Please follow the [conventional commits](https://www.conventionalcommits.org/) s
 
 ---
 
-## 📊 Roadmap
+## 📊 Future Improvements
 
 * [ ] Admin Dashboard (Streamlit / Vue)
 * [ ] PDF Badge Generator
@@ -123,7 +128,7 @@ Seriously, just open an issue ☛ [here](https://github.com/your-org/rfid-event-
 
 ## 📜 License
 
-MIT © Your Team Name 2025
+MIT © Ashwin 2025
 
 ---
 
