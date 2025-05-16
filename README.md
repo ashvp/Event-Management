@@ -6,7 +6,7 @@ A blazing-fast 🏃‍♂️, offline-first 📴, and scalable ⚡ backend for m
 
 ## 🚀 Features
 
-* 🎟️ **Attendee Onboarding via CSV & UI**
+* 🎟️ **Attendee Onboarding via CSV**
 * 🚂 **RFID Wristband Assignment**
 * ⏱️ **Real-time Check-in/Check-out Tracking**
 * 🡾 **Freebies & Kit Distribution Tracking**
