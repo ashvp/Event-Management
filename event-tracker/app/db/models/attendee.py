@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.sql import func
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
+from app.db.base import Base
 import enum
 
-Base = declarative_base()
+# Base = declarative_base()
 
 class RoleEnum(str, enum.Enum):
     attendee = "Attendee"
@@ -26,3 +27,7 @@ class Attendee(Base):
     got_lunch = Column(Boolean, default=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    attendances = relationship("Attendance", back_populates="attendee")

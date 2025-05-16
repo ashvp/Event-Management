@@ -13,8 +13,8 @@ import os
 # Add the parent directory to the system path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.db.models.attendee import Base
-
+from app.db.base import Base
+from app.db.models import attendee, attendance, event
 target_metadata = Base.metadata
 
 # this is the Alembic Config object, which provides

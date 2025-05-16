@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.attendee import AttendeeCreate, AttendeeOut
-from app.crud.attendee import create_attendee, get_all_attendees, get_attendee_by_email
+from app.schemas.attendee import AttendeeCreate, AttendeeOut, RFIDAssign
+from app.crud.attendee import create_attendee, get_all_attendees, get_attendee_by_email, assign_rfid_to_attendee
 from app.db.session import AsyncSessionLocal
+from app.utils.export import export_rfid_assignments
+from fastapi.responses import FileResponse
+
 import csv
+import os
 from io import StringIO
+from datetime import datetime
 
 router = APIRouter()
 
@@ -51,3 +56,30 @@ async def upload_attendees_csv(file: UploadFile = File(...), db: AsyncSession = 
         "created": created,
         "skipped": skipped
     }
+
+@router.post("/{attendee_id}/assign_rfid")
+async def assign_rfid(attendee_id: int, payload: RFIDAssign, db: AsyncSession = Depends(get_db)):
+    try:
+        attendee = await assign_rfid_to_attendee(db, attendee_id, payload.rfid_uid)
+        await export_rfid_assignments(db)  # <-- this auto-updates the CSV
+        return {"message": "RFID assigned successfully", "attendee": attendee}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/rfid_export/")
+async def download_rfid_export(date: str = Query(default=None, description="Date in YYYY-MM-DD")):
+    # if no date provided, default to today
+    date_obj = datetime.utcnow()
+    if date:
+        try:
+            date_obj = datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+
+    filename = f"rfid_assignments_{date_obj.strftime('%Y-%m-%d')}.csv"
+    filepath = os.path.join("exports", filename)
+
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Export file not found for the given date.")
+
+    return FileResponse(filepath, media_type="text/csv", filename=filename)

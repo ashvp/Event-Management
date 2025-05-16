@@ -23,3 +23,20 @@ async def get_attendee_by_email(db: AsyncSession, email: str) -> Optional[Attend
 async def get_all_attendees(db: AsyncSession) -> list[Attendee]:
     result = await db.execute(select(Attendee))
     return result.scalars().all()
+
+async def assign_rfid_to_attendee(db: AsyncSession, attendee_id: int, rfid_uid: str):
+    result = await db.execute(select(Attendee).where(Attendee.rfid_uid == rfid_uid))
+    existing = result.scalar_one_or_none()
+    if existing:
+        raise ValueError("RFID UID is already assigned to another attendee.")
+
+    result = await db.execute(select(Attendee).where(Attendee.id == attendee_id))
+    attendee = result.scalar_one_or_none()
+    if not attendee:
+        raise ValueError("Attendee not found.")
+
+    attendee.rfid_uid = rfid_uid
+    attendee.registered = True  
+    await db.commit()
+    await db.refresh(attendee)
+    return attendee

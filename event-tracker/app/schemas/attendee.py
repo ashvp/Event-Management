@@ -26,3 +26,6 @@ class AttendeeOut(AttendeeBase):
     model_config = {
         "from_attributes": True
     }
+
+class RFIDAssign(BaseModel):
+    rfid_uid: str
