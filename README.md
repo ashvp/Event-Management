@@ -112,7 +112,7 @@ Please follow the [conventional commits](https://www.conventionalcommits.org/) s
 
 ## 📊 Future Improvements
 
-* [ ] Admin Dashboard (Streamlit / Vue)
+* [ ] Admin Dashboard (React / Streamlit / Vue)
 * [ ] PDF Badge Generator
 * [ ] Realtime WebSocket Sync
 * [ ] Telegram Bot for Check-in Alerts 📲
