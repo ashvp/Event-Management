@@ -51,13 +51,11 @@ async def get_attendees_filtered(
     skip: int = 0,
     limit: int = 20,
 ):
-    logger.info("▶️ get_attendees_filtered called with search=%r", search)
 
     stmt = select(Attendee)
 
     if search and search.strip():
         term = f"%{search.strip()}%"
-        logger.info("✅ inside IF branch: applying filter term=%r", term)
         stmt = stmt.where(
             or_(
                 Attendee.name.ilike(term),
@@ -65,13 +63,9 @@ async def get_attendees_filtered(
                 Attendee.phone.ilike(term),
             )
         )
-    else:
-        logger.info("❌ inside ELSE branch: search empty or whitespace")
 
     stmt = stmt.order_by(Attendee.name).offset(skip).limit(limit)
-    logger.debug("Compiled SQL: %s", stmt.compile(compile_kwargs={"literal_binds": True}))
 
     result = await db.execute(stmt)
     rows = result.scalars().all()
-    logger.info("◀️ returning %d rows", len(rows))
     return rows

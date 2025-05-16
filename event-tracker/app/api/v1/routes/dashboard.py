@@ -20,9 +20,6 @@ async def attendees_list(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
-):
-    print("🔥 attendees_list was called!")       # <— add this
-    print(f"    search parameter is: {search!r}")  # <— and this
-    logging.info(f"📥 Received search param: {search!r}") 
+): 
     attendees = await get_attendees_filtered(db, search, skip, limit)
     return attendees

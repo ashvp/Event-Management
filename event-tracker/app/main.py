@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # from app.db.models.attendee import Attendee
 from app.api.v1.routes import attendee, checkin, claim, event_day, dashboard
 import logging
+from app.utils.offline_queue import start_sync_thread
+
 app = FastAPI()
 
 origins = [
@@ -28,6 +30,9 @@ app.include_router(claim.router, prefix="/api/v1", tags=["claim"])
 app.include_router(event_day.router, prefix="/api/v1", tags=["event_days"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
 
+@app.on_event("startup")
+async def startup_event():
+    start_sync_thread()
 
 @app.get("/")
 async def root():
