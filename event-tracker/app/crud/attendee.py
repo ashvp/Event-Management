@@ -1,9 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 from app.db.models.attendee import Attendee
 from app.schemas.attendee import AttendeeCreate
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def create_attendee(db: AsyncSession, attendee: AttendeeCreate) -> Attendee:
     db_attendee = Attendee(**attendee.dict())
@@ -40,3 +44,34 @@ async def assign_rfid_to_attendee(db: AsyncSession, attendee_id: int, rfid_uid: 
     await db.commit()
     await db.refresh(attendee)
     return attendee
+
+async def get_attendees_filtered(
+    db: AsyncSession,
+    search: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 20,
+):
+    logger.info("▶️ get_attendees_filtered called with search=%r", search)
+
+    stmt = select(Attendee)
+
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        logger.info("✅ inside IF branch: applying filter term=%r", term)
+        stmt = stmt.where(
+            or_(
+                Attendee.name.ilike(term),
+                Attendee.email.ilike(term),
+                Attendee.phone.ilike(term),
+            )
+        )
+    else:
+        logger.info("❌ inside ELSE branch: search empty or whitespace")
+
+    stmt = stmt.order_by(Attendee.name).offset(skip).limit(limit)
+    logger.debug("Compiled SQL: %s", stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    result = await db.execute(stmt)
+    rows = result.scalars().all()
+    logger.info("◀️ returning %d rows", len(rows))
+    return rows
